@@ -9,7 +9,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import SearchScreen from './screens/SearchScreen';
+import ExtendedDetailScreen from './screens/ExtendedDetailScreen';
 import FavoritesScreen from './screens/FavoritesScreen';
+import AddEstateScreen from './screens/AddEstateScreen';
 import AlertsScreen from './screens/AlertsScreen';
 import AccountScreen from './screens/AccountScreen';
 //icons
@@ -21,6 +23,14 @@ import AuthContextProvider, { AuthContext } from './context/auth-context';
 //local storage
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
+//fav context
+import FavoriteContextProvider from './context/favorite-context';
+// sqlite favorites init
+import { init as initFavorites } from "./util/persistence";
+// sqlite user posted ads init
+import { init as initUserAds } from './util/userAds';
+// user listing context
+import UserListingContextProvider from './context/user-listing-context';
 
 
 const Stack = createNativeStackNavigator();
@@ -32,6 +42,7 @@ const Tab = createBottomTabNavigator();
 //   <Stack.Screen name='SignupScreen' component={SignupScreen} options={{ headerTitle: 'Signup', headerBackVisible: false }} />
 //   <Stack.Screen name='MainFlow' component={MainFlow} options={{ headerShown: false }} />
 // </Stack.Navigator>
+
 
 
 const AuthFlow = () => {
@@ -46,28 +57,38 @@ const AuthFlow = () => {
 
 const MainFlow = () => {
   return (
-    <Tab.Navigator screenOptions={{ headerTitleAlign: 'center', tabBarActiveTintColor: '#7e5aa3' }}>
+    <Tab.Navigator screenOptions={{ headerTitleAlign: 'center', tabBarActiveTintColor: Colors.primaryPurple }}>
       <Tab.Screen
-        name='SearchScreen'
+        name='Search'
         component={SearchScreen}
         options={{
           tabBarLabel: 'Search',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ size, color }) => (
             <Feather name="search" size={size} color={color} />)
         }}
       />
       <Tab.Screen
-        name='FavoritesScreen'
+        name='Favorites'
         component={FavoritesScreen}
         options={{
           tabBarLabel: 'Favorites',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ size, color }) => (
             <Feather name="heart" size={size} color={color} />
           )
         }}
       />
       <Tab.Screen
-        name='AlertsScreen'
+        name='Add Estate'
+        component={AddEstateScreen}
+        options={{
+          tabBarLabel: 'Sell',
+          tabBarIcon: ({ size, color }) => (
+            <Feather name='plus-square' size={size} color={color} />
+          )
+        }}
+      />
+      <Tab.Screen
+        name='Alerts'
         component={AlertsScreen}
         options={{
           tabBarLabel: 'Alerts',
@@ -77,7 +98,7 @@ const MainFlow = () => {
         }}
       />
       <Tab.Screen
-        name='AccountScreen'
+        name='Account'
         component={AccountScreen}
         options={{
           tabBarLabel: 'Account',
@@ -96,13 +117,19 @@ const NavigatorSwitch = () => {
 
   return (
     <NavigationContainer>
-      {authContext.isAuthenticated ? (<MainFlow />) : (<AuthFlow />)}
+      {authContext.isAuthenticated ? (
+        <UserListingContextProvider>
+          <FavoriteContextProvider>
+            <MainFlow />
+          </FavoriteContextProvider>
+        </UserListingContextProvider>
+      ) : (<AuthFlow />)}
     </NavigationContainer>
   )
 }
 
 
-//function that check for the token in local storage
+//function that checks for the token in local storage
 //and automatically authenticates if found
 const TryLocalAuth = () => {
   const [appIsReady, setAppIsReady] = useState(false);
@@ -142,6 +169,24 @@ const TryLocalAuth = () => {
 
 
 export default function App() {
+
+  useEffect(() => {
+    initFavorites()
+      .then(() => {
+        console.log("Favorites DB initialize success");
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    initUserAds()
+      .then(() => {
+        console.log("User ads DB initialize success");
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }, []);
+
   return (
     <>
       <StatusBar style='auto' />
