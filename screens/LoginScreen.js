@@ -55,7 +55,7 @@ const LoginScreen = ({ navigation }) => {
         <TextInput
           style={styles.inputMail}
           placeholder="Email"
-          onChangeText={input => setEmail(input)}
+          onChangeText={input => setEmail(input.trim())}
           value={email}
           autoCapitalize="none"
           autoComplete="off"
@@ -64,7 +64,7 @@ const LoginScreen = ({ navigation }) => {
           <TextInput
             style={styles.inputPassword}
             placeholder="Password"
-            onChangeText={input => setPassword(input)}
+            onChangeText={input => setPassword(input.trim())}
             value={password}
             autoCapitalize="none"
             autoComplete="off"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { View, Text, Button, FlatList, Image, StyleSheet, TouchableOpacity, Pressable, Modal, ScrollView } from "react-native";
+import { View, Text, Button, FlatList, Image, StyleSheet, TouchableOpacity, Pressable, Modal, ScrollView, Animated } from "react-native";
 // get db
 import { fetchAds } from "../util/db";
 // search bar
@@ -9,17 +9,23 @@ import AdCardComponent from "../components/AdCardComponent";
 // context
 import { FavoriteContext } from '../context/favorite-context';
 import SavedAdCardComponent from "../components/SavedAdCardComponent";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-// green ads
-import { fetchGreenAds } from "../util/db";
-// student ads
-import { fetchStudentsAds } from "../util/db";
+import { SearchContext } from "../context/search-context";
+// saved search insert
+import { insertSavedSearch } from "../util/search";
+import { Colors } from "../constants/styles";
 
 
-// add filters (filter by price/sqm mandatory feature)
-// order by
-// check for internet connection (low priority)
-// alerts: save search, get push notification when updates happen in the db
+
+// TODO: alerts: save search, get push notification when updates happen in the db -> show in Alerts screen; 
+// 2 options: set alert directly from Alerts screen(easier, limit user to create alert based only on location) 
+// make the location column unique in db to avoid duplicate saves and don't be forced by an id to keep track
+// of the saves
+//or save from search bar
+// TODO: add filters (filter by price/sqm mandatory feature)
+// TODO: order by (you cant order by multiple params; do a fetch for each param )
+// TODO: rename persistence.js and db.js
+// TODO: check for internet connection (low priority)
+// XXXX .trim() on text input deletes final whitespace XXXX
 // XXXX implement search by term XXXX
 // XXXX use sqlite to persist user posted ads XXXX
 // XXXX add 'for students' and 'Eco' sections XXXX
@@ -27,25 +33,28 @@ import { fetchStudentsAds } from "../util/db";
 
 
 // "For Students" section price limits
-const MIN_PRICE = 150;
-const MAX_PRICE = 350;
+const MIN_PRICE = 150.00;
+const MAX_PRICE = 350.00;
 
-const SearchScreen = () => {
+const SearchScreen = ({ route }) => {
   const [term, setTerm] = useState('');
   const [ads, setAds] = useState([]);
   const [greenAds, setGreenAds] = useState([]);
   const [studentsAds, setStudentsAds] = useState([]);
   const favContext = useContext(FavoriteContext);
+  const srchContext = useContext(SearchContext);
+
+
 
 
   useEffect(() => {
     async function getDefaultAds() {
       const defaultEstates = await fetchAds();
       const estatesGreen = defaultEstates.filter(ad => ad.type.includes("Eco"));
-      console.log("eco type ads: ", estatesGreen);
+      //console.log("eco type ads: ", estatesGreen);
       setGreenAds(estatesGreen);
       const estatesStudents = defaultEstates.filter(ad => ad.price >= MIN_PRICE && ad.price <= MAX_PRICE);
-      console.log("ads for students: ", estatesStudents)
+      //console.log("ads for students: ", estatesStudents)
       setStudentsAds(estatesStudents);
     }
     getDefaultAds();
@@ -73,13 +82,22 @@ const SearchScreen = () => {
   }
 
 
+  // generate id for ad
+  const generateSearchId = () => {
+    // generate a 3 digit number
+    let id = 0;
+    id = Math.floor(100 + Math.random() * 900);
+    return id;
+  }
 
-  /* use a toggle for this functionality 
-        <View>
-          <Text>Filters here</Text>
-          <Text>And sorting</Text>
-        </View> 
-  */
+  const saveSearch = () => {
+    //generate id
+    const id = generateSearchId();
+    // insert to context
+    srchContext.addFavoriteSearch(id, term);
+    // insert term to search db
+    //insertSavedSearch(id, term);
+  }
 
 
   // seach screen has default state shows two sections
@@ -118,7 +136,7 @@ const SearchScreen = () => {
             style={styles.list}
             horizontal
             showsHorizontalScrollIndicator={false}
-            data={studentsAds} // studentAds use filter to select between low-high prices
+            data={studentsAds}
             keyExtractor={item => item.id}
             renderItem={({ item }) => {
               if (favContext.ids.includes(item.id)) {
@@ -143,7 +161,12 @@ const SearchScreen = () => {
   const searchView = () => {
     return (
       <View style={styles.screenContainer}>
-        {ads.length == 0 ? <Text>No results found for "{term}"</Text> : <Text>"{term}" returned {ads.length} results</Text>}
+        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginRight: '5%', alignItems: 'center' }} >
+          {ads.length == 0 && <Text style={styles.resultInfoText} >No results found for "{term}"</Text>}
+          {ads.length == 1 && <Text style={styles.resultInfoText}>"{term}" returned {ads.length} result</Text>}
+          {ads.length > 1 && <Text style={styles.resultInfoText}>"{term}" returned {ads.length} results</Text>}
+          {ads.length >= 1 && (<View><TouchableOpacity onPress={saveSearch} style={styles.saveSearchBtn}><Text style={styles.saveSearchText}>Save search</Text></TouchableOpacity></View>)}
+        </View>
         <FlatList
           style={styles.listContainer}
           showsVerticalScrollIndicator={false}
@@ -168,6 +191,7 @@ const SearchScreen = () => {
     );
   }
 
+
   return (
     <View style={styles.screenContainer}>
       <SearchBar term={term} onTermChange={input => setTerm(input)}
@@ -184,7 +208,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   list: {
-    marginLeft: 7,
+    //marginLeft: 7,
     alignSelf: 'center',
     //overflow: 'hidden'
   },
@@ -201,6 +225,17 @@ const styles = StyleSheet.create({
   },
   section: {
     //marginVertical: 10,
+  },
+  resultInfoText: {
+    marginLeft: '5%',
+  },
+  saveSearchBtn: {
+    borderColor: Colors.primaryPurple,
+    borderWidth: 1,
+    padding: 2
+  },
+  saveSearchText: {
+    color: Colors.primaryPurple
   },
 });
 

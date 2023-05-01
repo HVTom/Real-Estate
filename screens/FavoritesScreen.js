@@ -6,7 +6,7 @@ import SavedAdCardComponent from "../components/SavedAdCardComponent";
 import { FavoriteContext } from "../context/favorite-context";
 import { fetchAds } from "../util/db";
 // get from db
-import { readFavorite, removeFavorite } from "../util/persistence";
+import { readFavorite, removeFavorite } from "../util/favs";
 import { dropMyAd } from "../util/userAds";
 
 
@@ -16,11 +16,11 @@ const FavoritesScreen = () => {
   const favContext = useContext(FavoriteContext);
 
 
-  console.log(favContext.ids); // ids array from context has all the ids of the saved ads; now fetch from db the ads with said ids
+  //console.log(favContext.ids); // ids array from context has all the ids of the saved ads; now fetch from db the ads with said ids
 
   useEffect(() => {
     async function fetchFromDb() {
-      await readFavorite();
+      await readFavorite(); // get ids from sqlite db (persistent ids), fill provider state
     }
     fetchFromDb();
   }, []);
@@ -29,7 +29,7 @@ const FavoritesScreen = () => {
 
   useEffect(() => {
     async function getFavAds() {
-      const estates = await fetchAds();//aduc din bd
+      const estates = await fetchAds();//aduc din realtime bd
       if (favContext.ids) {
         const favEstates = estates.filter((ad => favContext.ids.includes(ad.id)));// selectez doar anunturile salvate
         setFavAds(favEstates);

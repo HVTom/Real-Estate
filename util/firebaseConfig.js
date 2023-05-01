@@ -26,7 +26,7 @@ export const getRealtimeDbData = () => {
   get(child(dbRef, `ads`)).then((snapshot) => {
     if (snapshot.exists()) {
       let result = snapshot.val();
-      console.log(snapshot.val());
+      //console.log(snapshot.val());
       return result;
     } else {
       console.log("No data available");

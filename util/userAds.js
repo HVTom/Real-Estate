@@ -49,7 +49,7 @@ export function insertUserAds(id, title, price, surface, bedrooms, bathrooms, ty
           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [id, title, price, surface, bedrooms, bathrooms, type, year_built, description, location, phone, email, image],
         (_, result) => {
-          console.log(result);
+          //console.log(result);
           resolve(result);
         },
         (_, error) => {
@@ -70,7 +70,7 @@ export function readUserAds() {
         `SELECT * FROM userads`,
         [],
         (_, result) => {
-          console.log(JSON.stringify(result));
+          //console.log(JSON.stringify(result));
           resolve(result);
         },
         (_, error) => {
@@ -90,7 +90,7 @@ export function removeUserAd(id) {
         `DELETE FROM userads WHERE (id) = (?)`,
         [id],
         (_, result) => {
-          console.log(result);
+          //console.log(result);
           resolve(result);
         },
         (_, error) => {

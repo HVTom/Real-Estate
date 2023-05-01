@@ -17,7 +17,6 @@ import UserAdCard from "../components/UserAdCard";
 import { readUserAds } from "../util/userAds";
 // modal screen
 import UserListingsScreen from "./UserListingsScreen";
-import { UserListingContext } from "../context/user-listing-context";
 
 
 const AccountScreen = () => {
@@ -147,9 +146,9 @@ const AccountScreen = () => {
         <View style={styles.switchSide}>
           <MaterialIcons style={styles.icon} name="euro" size={24} color="black" />
           <Switch
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={isEnabledCurrencySwitch ? '#f5dd4b' : '#f4f3f4'}
-            ios_backgroundColor="#3e3e3e"
+            // trackColor={{ false: '#767577', true: '#81b0ff' }}
+            // thumbColor={isEnabledCurrencySwitch ? '#f5dd4b' : '#f4f3f4'}
+            // ios_backgroundColor="#3e3e3e"
             onValueChange={toggleCurrencySwitch}
             value={isEnabledCurrencySwitch}
           />
@@ -165,9 +164,9 @@ const AccountScreen = () => {
         <View style={styles.switchSide}>
           <Text style={{ fontSize: 18, marginHorizontal: '3%' }} >Sqm</Text>
           <Switch
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={isEnabledSurfaceSwitch ? '#f5dd4b' : '#f4f3f4'}
-            ios_backgroundColor="#3e3e3e"
+            // trackColor={{ false: '#767577', true: '#81b0ff' }}
+            // thumbColor={isEnabledSurfaceSwitch ? '#f5dd4b' : '#f4f3f4'}
+            // ios_backgroundColor="#3e3e3e"
             onValueChange={toggleSurfaceSwitch}
             value={isEnabledSurfaceSwitch}
           />
@@ -183,9 +182,9 @@ const AccountScreen = () => {
         <View style={styles.switchSide}>
           <Feather style={styles.icon} name="sun" size={24} color="black" />
           <Switch
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={isEnabledThemeSwitch ? '#f5dd4b' : '#f4f3f4'}
-            ios_backgroundColor="#3e3e3e"
+            //trackColor={{ false: '#767577', true: '#81b0ff' }}
+            //thumbColor={isEnabledThemeSwitch ? '#f5dd4b' : '#f4f3f4'}
+            //ios_backgroundColor="#3e3e3e"
             onValueChange={toggleThemeSwitch}
             value={isEnabledThemeSwitch}
           />

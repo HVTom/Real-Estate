@@ -11,12 +11,12 @@ const UserListingsScreen = () => {
 
 
   useEffect(() => {
-    console.log("userAdsContext.ads: ", userAdsContext.ads);
+    //console.log("userAdsContext.ads: ", userAdsContext.ads);
 
     async function fetchFromUserAds() {
       const response = await readUserAds(); // read from sqlite
       const responseIdsArray = response.rows._array;
-      console.log('Sqlite user ads: ', responseIdsArray);
+      //console.log('Sqlite user ads: ', responseIdsArray);
       setUserAds(responseIdsArray);
     }
     fetchFromUserAds();

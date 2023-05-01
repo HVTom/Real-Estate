@@ -63,7 +63,7 @@ const UserAdCard = ({ item }) => {
         {/* <Pressable android_ripple={{ color: '#ccc', borderless: false, overflow: 'hidden' }} onPress={() => setModalVisible(!modalVisible)}> */}
         <View style={item.type == 'Eco' ? styles.ecoItemContainer : styles.itemContainer} >
           <Image source={{ uri: `data:image;base64,${item.image}` }}
-            style={{ width: 325, height: 200, borderRadius: 15 }}
+            style={{ width: 325, height: 200, borderTopLeftRadius: 15, borderTopRightRadius: 15 }}
           />
           <View style={styles.moneyDetail}>
             <MaterialIcons name="euro" size={24} color="black" />

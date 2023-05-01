@@ -1,6 +1,6 @@
 //app-wide favorite ads state
 import React, { createContext, useState, useEffect } from "react";
-import { insertFavorite, readFavorite, removeFavorite } from "../util/persistence";
+import { insertFavorite, readFavorite, removeFavorite } from "../util/favs";
 
 
 
@@ -29,12 +29,12 @@ function FavoriteContextProvider({ children }) {
     async function fetchFromDb() { // FETCH FROM DB TO FILL STATE
       const response = await readFavorite();
       const responseIdsArray = response.rows._array;
-      console.log('responseIdsArray: ', responseIdsArray);
+      //console.log('responseIdsArray: ', responseIdsArray);
       const favIds = [];
       for (let objIds in responseIdsArray) {
         favIds.push((responseIdsArray[objIds].id).toString());
       }
-      console.log("favAdsIds arr: ", favIds);
+      //console.log("favAdsIds arr: ", favIds);
       setFavoriteAdIds(favIds);
     }
     fetchFromDb();

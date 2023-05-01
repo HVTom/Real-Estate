@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { View, Text, TextInput, StyleSheet, VirtualizedList, Image, TouchableOpacity, ScrollView, LogBox, Alert } from "react-native";
 // Colors
 import { Colors } from "../constants/styles";
@@ -14,13 +14,13 @@ import { getRealtimeDbData, writeUserData } from "../util/firebaseConfig";
 import { SelectList, selectList } from 'react-native-dropdown-select-list';
 // import function to persist posted ad
 import { insertUserAds } from "../util/userAds";
+import { UserListingContext } from "../context/user-listing-context";
 
 
 // for base64 encoding
 if (typeof atob === 'undefined') {
   global.atob = decode;
 }
-
 
 
 const AddEstateScreen = () => {
@@ -36,6 +36,10 @@ const AddEstateScreen = () => {
   const [location, setLocation] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+
+  // const userListingContext = useContext(UserListingContext); //??? unused??
+
+
 
   // predefined list of types
   const estateTypes = [
@@ -62,7 +66,7 @@ const AddEstateScreen = () => {
       exif: false,
     });
 
-    console.log('selcted images: \n', result);
+    //console.log('selcted images: \n', result);
     //console.log("image id: \n", result.assets[0].assetId);
     //console.log("image uri: \n", result.assets[0].uri);
 
@@ -166,9 +170,9 @@ const AddEstateScreen = () => {
 
     if (validated) {
       const id = generateAdId();
-      console.log("generated id: ", id);
+     // console.log("generated id: ", id);
       // persist user ads
-      const image = images[0].b64; // insert only the firast ad image
+      const image = images[0].b64; // insert only the first ad image
 
       // realtime db write
       writeUserData(id, title, price, surface, beds, baths, type, year, desc, location, phone, email, images);
@@ -182,6 +186,7 @@ const AddEstateScreen = () => {
           }
         ]
       )
+      // insert to user ads sqlite db
       insertUserAds(id, title, price, surface, beds, baths, type, year, desc, location, phone, email, images[0].b64);
     }
   }
@@ -199,7 +204,7 @@ const AddEstateScreen = () => {
           <TextInput
             style={styles.textInput}
             placeholder='Ad title'
-            onChangeText={input => setTitle(input)}
+            onChangeText={input => setTitle(input.trim())}
             value={title}
           />
         </View>
@@ -342,7 +347,7 @@ const AddEstateScreen = () => {
             autoComplete='off'
             autoCorrect={false}
             placeholder='name@provider.com'
-            onChangeText={input => setEmail(input)}
+            onChangeText={input => setEmail(input.trim())}
             value={email}
           />
         </View>

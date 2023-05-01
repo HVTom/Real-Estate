@@ -31,7 +31,7 @@ function UserListingContextProvider({ children }) {
     async function fetchFromDb() { // FETCH FROM DB TO FILL STATE
       const response = await readUserAds();
       const responseUserIdsArray = response.rows._array;
-      console.log('userAdsResponseArray: ', responseUserIdsArray);
+      //console.log('userAdsResponseArray: ', responseUserIdsArray);
       setUserAds(responseUserIdsArray);
     }
     fetchFromDb();

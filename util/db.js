@@ -65,9 +65,19 @@ export async function deleteAd(id) {
 }
 
 
-// fetch green/eco housing
+
+
+// TODO: fetch with orderBy: price, surface, bedrroms, bathrooms,
+
+
+
+
+
+// (UNUSED) fetch green/eco housing breaks the search screen
 export async function fetchGreenAds() {
   const response = await axios.get(`${RTDB_URL}/ads.json/orderBy="$type"&equalTo="Eco"`);
+  //   const response = await axios.get(`${RTDB_URL}/ads.json`); maybe put both fethces here??
+
 
   const ads = []; // array of ads 
 
@@ -108,7 +118,7 @@ export async function fetchGreenAds() {
 }
 
 
-// fetch low-priced (for students) ads
+//(UNUSED) fetch low-priced (for students) ads
 export async function fetchStudentsAds() {
   const response = await axios.get(`${RTDB_URL}/ads.json`);
 

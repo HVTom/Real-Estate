@@ -25,10 +25,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
 //fav context
 import FavoriteContextProvider from './context/favorite-context';
+//search context
+import SearchContextProvider, { SearchContext } from './context/search-context';
 // sqlite favorites init
-import { init as initFavorites } from "./util/persistence";
+import { init as initFavorites } from "./util/favs";
 // sqlite user posted ads init
 import { init as initUserAds } from './util/userAds';
+// sqlite saved searches init
+import { init as initSavedSearches } from './util/search';
 // user listing context
 import UserListingContextProvider from './context/user-listing-context';
 
@@ -118,11 +122,13 @@ const NavigatorSwitch = () => {
   return (
     <NavigationContainer>
       {authContext.isAuthenticated ? (
-        <UserListingContextProvider>
-          <FavoriteContextProvider>
-            <MainFlow />
-          </FavoriteContextProvider>
-        </UserListingContextProvider>
+        <SearchContextProvider>
+          <UserListingContextProvider>
+            <FavoriteContextProvider>
+              <MainFlow />
+            </FavoriteContextProvider>
+          </UserListingContextProvider>
+        </SearchContextProvider>
       ) : (<AuthFlow />)}
     </NavigationContainer>
   )
@@ -181,6 +187,13 @@ export default function App() {
     initUserAds()
       .then(() => {
         console.log("User ads DB initialize success");
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    initSavedSearches()
+      .then(() => {
+        console.log("Saved searches DB initialize success");
       })
       .catch(err => {
         console.log(err);
