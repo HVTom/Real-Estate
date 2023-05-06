@@ -4,6 +4,8 @@ import { View, Text, Button, FlatList, Image, StyleSheet, TouchableOpacity, Pres
 import { fetchAds } from "../util/db";
 // search bar
 import SearchBar from "../components/SearchBar";
+// icon
+import { Feather, FontAwesome5, AntDesign } from '@expo/vector-icons';
 // card
 import AdCardComponent from "../components/AdCardComponent";
 // context
@@ -20,11 +22,11 @@ import { Colors } from "../constants/styles";
 // 2 options: set alert directly from Alerts screen(easier, limit user to create alert based only on location) 
 // make the location column unique in db to avoid duplicate saves and don't be forced by an id to keep track
 // of the saves
-//or save from search bar
-// TODO: add filters (filter by price/sqm mandatory feature)
-// TODO: order by (you cant order by multiple params; do a fetch for each param )
-// TODO: rename persistence.js and db.js
+// XXXX or save from search bar XXXX
 // TODO: check for internet connection (low priority)
+// XXXX add filters (filter by price/sqm mandatory feature) XXXXX
+// XXXX order by XXXX
+// XXXX rename persistence.js and db.js XXXX
 // XXXX .trim() on text input deletes final whitespace XXXX
 // XXXX implement search by term XXXX
 // XXXX use sqlite to persist user posted ads XXXX
@@ -36,14 +38,22 @@ import { Colors } from "../constants/styles";
 const MIN_PRICE = 150.00;
 const MAX_PRICE = 350.00;
 
-const SearchScreen = ({ route }) => {
+const SearchScreen = () => {
   const [term, setTerm] = useState('');
   const [ads, setAds] = useState([]);
   const [greenAds, setGreenAds] = useState([]);
   const [studentsAds, setStudentsAds] = useState([]);
   const favContext = useContext(FavoriteContext);
   const srchContext = useContext(SearchContext);
+  const [modalVisible, setModalVisible] = useState(false);
+  // radio buttons sort state/behaviour
+  const [selectedSortBtn, setSelectedSortBtn] = useState('');
+  const [selectedSaleRentBtn, setSelectedSaleRentBtn] = useState('');
+  const [selectedFilterBtn, setSelectedFilterBtn] = useState('');
 
+
+
+  console.log("Modal visibility: ", modalVisible);
 
 
 
@@ -192,11 +202,249 @@ const SearchScreen = ({ route }) => {
   }
 
 
+
+
+  if (modalVisible === true) {
+    return (
+      <View style={styles.centeredView}>
+        <Modal
+          animationType='fade'
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(!modalVisible);
+          }}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              {/* Sorting */}
+              <Text style={styles.modalTitle} >Sort by</Text>
+
+              <View style={styles.category}>
+                <View style={selectedSortBtn === 'PriceLoHi' ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedSortBtn("PriceLoHi");
+                    const priceAscending = [...ads].sort((a, b) => a.price - b.price);
+                    // for(var listing in priceAscending) {
+                    //   console.log(`#${priceAscending[listing].id} - ${priceAscending[listing].price}`);
+                    // }
+                    setAds(priceAscending);
+                    setModalVisible(!modalVisible)
+                  }}>
+                    <Text style={selectedSortBtn === 'PriceLoHi' ? styles.sortOptionSelectedText : styles.sortOptionText} >Price</Text>
+                  </TouchableOpacity>
+                  <Feather name="arrow-up" size={24} color={selectedSortBtn === 'PriceLoHi' ? Colors.primaryPurple : 'black'} />
+                </View>
+
+                <View style={selectedSortBtn === 'PriceHiLo' ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedSortBtn("PriceHiLo");
+                    const priceDescending = [...ads].sort((a, b) => b.price - a.price);
+                    setAds(priceDescending);
+                    setModalVisible(!modalVisible)
+                  }}>
+                    <Text style={selectedSortBtn === 'PriceHiLo' ? styles.sortOptionSelectedText : styles.sortOptionText}>Price</Text>
+                  </TouchableOpacity>
+                  <Feather name="arrow-down" size={24} color={selectedSortBtn === 'PriceHiLo' ? Colors.primaryPurple : 'black'} />
+                </View>
+              </View>
+
+              <View style={styles.category}>
+                <View style={selectedSortBtn === 'SurfaceLoHi' ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedSortBtn('SurfaceLoHi');
+                    const surfaceAscending = [...ads].sort((a, b) => a.surface - b.surface);
+                    setAds(surfaceAscending);
+                    setModalVisible(!modalVisible)
+                  }}>
+                    <Text style={selectedSortBtn === 'SurfaceLoHi' ? styles.sortOptionSelectedText : styles.sortOptionText}>Surface</Text>
+                  </TouchableOpacity>
+                  <Feather name="arrow-up" size={24} color={selectedSortBtn === 'SurfaceLoHi' ? Colors.primaryPurple : 'black'} />
+                </View>
+
+                <View style={selectedSortBtn === 'PriceSurfaceLoHi' ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedSortBtn('PriceSurfaceLoHi');
+                    const pricePerSurfaceAsc = [...ads].sort((a, b) => a.price / a.surface - b.price / b.surface);
+                    setAds(pricePerSurfaceAsc);
+                    setModalVisible(!modalVisible)
+                  }}>
+                    <Text style={selectedSortBtn === 'PriceSurfaceLoHi' ? styles.sortOptionSelectedText : styles.sortOptionText}>Price/Surface</Text>
+                  </TouchableOpacity>
+                  <Feather name="arrow-up" size={24} color={selectedSortBtn === 'PriceSurfaceLoHi' ? Colors.primaryPurple : 'black'} />
+                </View>
+              </View>
+
+
+              <View style={styles.category}>
+                <View style={selectedSortBtn === 'PriceSurfaceHiLo' ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedSortBtn('PriceSurfaceHiL');
+                    const pricePerSurfaceDesc = [...ads].sort((a, b) => b.price / b.surface - a.price / a.surface);
+                    setAds(pricePerSurfaceDesc);
+                    setModalVisible(!modalVisible)
+                  }}>
+                    <Text style={selectedSortBtn === 'PriceSurfaceHiLo' ? styles.sortOptionSelectedText : styles.sortOptionText}>Price/Surface</Text>
+                  </TouchableOpacity>
+                  <Feather name="arrow-down" size={24} color={selectedSortBtn === 'PriceSurfaceHiLo' ? Colors.primaryPurple : 'black'} />
+                </View>
+
+                <View style={selectedSortBtn === 'SurfaceHiLo' ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedSortBtn('SurfaceHiLo');
+                    const surfaceDescending = [...ads].sort((a, b) => b.surface - a.surface);
+                    setAds(surfaceDescending);
+                    setModalVisible(!modalVisible)
+                  }}>
+                    <Text style={selectedSortBtn === 'SurfaceHiLo' ? styles.sortOptionSelectedText : styles.sortOptionText}>Surface</Text>
+                  </TouchableOpacity>
+                  <Feather name="arrow-down" size={24} color={selectedSortBtn === 'SurfaceHiLo' ? Colors.primaryPurple : 'black'} />
+                </View>
+              </View>
+
+
+
+
+              {/* Filtering - must be able to select multiple options here, do the filtering at 'Search press' */}
+              <Text style={styles.modalTitle}>Filter by</Text>
+              <View style={styles.category}>
+                <View style={selectedSaleRentBtn === 'Sale' ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedSaleRentBtn('Sale');
+                    const transxType = ads.filter(
+                      ad => ad.transaction.includes('Sale'));
+                    setAds(transxType);
+                    //setModalVisible(!modalVisible);
+                  }}>
+                    <Text style={selectedSaleRentBtn === 'Sale' ? styles.sortOptionSelectedText : styles.sortOptionText}>Sale</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={selectedFilterBtn === 'Rent' ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedSaleRentBtn('Rent');
+                    const transxType = ads.filter(
+                      ad => ad.transaction.includes('Rent'));
+                    setAds(transxType);
+                    //setModalVisible(!modalVisible);
+                  }}>
+                    <Text style={selectedSaleRentBtn === 'Rent' ? styles.sortOptionSelectedText : styles.sortOptionText}>Rent</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/*estate type*/}
+              <Text style={styles.categoryTitle}>Estate type</Text>
+              <View style={styles.category}>
+                <View style={selectedFilterBtn.includes('Eco') ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedFilterBtn([...selectedFilterBtn, 'Eco']);
+                    const transxType = ads.filter(
+                      ad => ad.transaction.includes('Eco'));
+                    setAds(transxType);
+                    //setModalVisible(!modalVisible);
+                  }}>
+                    <Text style={selectedFilterBtn.includes('Eco') ? styles.sortOptionSelectedText : styles.sortOptionText}>Eco</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={selectedFilterBtn.includes('Apartment') ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedFilterBtn([...selectedFilterBtn, 'Apartment']);
+                    const transxType = ads.filter(
+                      ad => ad.transaction.includes('Apartment'));
+                    setAds(transxType);
+                    //setModalVisible(!modalVisible);
+                  }}>
+                    <Text style={selectedFilterBtn.includes('Apartment') ? styles.sortOptionSelectedText : styles.sortOptionText}>Apartment</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={selectedFilterBtn.includes('Duplex') ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedFilterBtn([...selectedFilterBtn, 'Duplex']);
+                    const transxType = ads.filter(
+                      ad => ad.transaction.includes('Duplex'));
+                    setAds(transxType);
+                    //setModalVisible(!modalVisible);
+                  }}>
+                    <Text style={selectedFilterBtn.includes('Duplex') ? styles.sortOptionSelectedText : styles.sortOptionText}>Duplex</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={styles.category}>
+                <View style={selectedFilterBtn.includes('Residential Complex') ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedFilterBtn([...selectedFilterBtn, 'Residential Complex']);
+                    const transxType = ads.filter(
+                      ad => ad.transaction.includes('Residential Complex'));
+                    setAds(transxType);
+                    //setModalVisible(!modalVisible);
+                  }}>
+                    <Text style={selectedFilterBtn.includes('Residential Complex') ? styles.sortOptionSelectedText : styles.sortOptionText}>Residential Complex</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={styles.category}>
+                <View style={selectedFilterBtn.includes('House') ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedFilterBtn([...selectedFilterBtn, 'House']);
+                    const transxType = ads.filter(
+                      ad => ad.transaction.includes('House'));
+                    setAds(transxType);
+                    //setModalVisible(!modalVisible);
+                  }}>
+                    <Text style={selectedFilterBtn.includes('House') ? styles.sortOptionSelectedText : styles.sortOptionText}>House</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={selectedFilterBtn.includes('Land') ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedFilterBtn([...selectedFilterBtn, 'Land']);
+                    const transxType = ads.filter(
+                      ad => ad.transaction.includes('Land'));
+                    setAds(transxType);
+                    //setModalVisible(!modalVisible);
+                  }}>
+                    <Text style={selectedFilterBtn.includes('Land') ? styles.sortOptionSelectedText : styles.sortOptionText}>Land</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={selectedFilterBtn.includes('Villa') ? styles.sortOptionSelected : styles.sortOption}>
+                  <TouchableOpacity onPress={() => {
+                    setSelectedFilterBtn([...selectedFilterBtn, 'Villa']);
+                    const transxType = ads.filter(
+                      ad => ad.transaction.includes('Villa'));
+                    setAds(transxType);
+                    //setModalVisible(!modalVisible);
+                  }}>
+                    <Text style={selectedFilterBtn.includes('Villa') ? styles.sortOptionSelectedText : styles.sortOptionText}>Villa</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/*beds baths*/}
+
+
+            </View>
+            <TouchableOpacity onPress={() => setModalVisible(false)} >
+              <Text style={styles.search}>Search</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal >
+      </View >
+    );
+  }
+
   return (
     <View style={styles.screenContainer}>
-      <SearchBar term={term} onTermChange={input => setTerm(input)}
-        onTermSubmit={() => getRealtimeDb()}
-      />
+      <View style={styles.barIcon} >
+        <SearchBar term={term} onTermChange={input => setTerm(input)}
+          onTermSubmit={() => {
+            setSelectedSortBtn('');
+            setSelectedSaleRentBtn('');
+            setSelectedFilterBtn('');
+            getRealtimeDb();
+          }}
+        />
+        <TouchableOpacity style={styles.filter} onPress={() => setModalVisible(true)} >
+          <Feather name="filter" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
       {term.length == 0 ? defaultView() : searchView()}
     </View>
   );
@@ -206,6 +454,12 @@ const SearchScreen = ({ route }) => {
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
+  },
+  barIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+
   },
   list: {
     //marginLeft: 7,
@@ -236,6 +490,103 @@ const styles = StyleSheet.create({
   },
   saveSearchText: {
     color: Colors.primaryPurple
+  },
+
+
+  // sort by modal
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 2,
+  },
+  modalView: {
+    margin: 5,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    paddingVertical: 25,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: '100%',
+    height: '70%'
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  //modal title
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20
+  },
+  // sort option button
+  sortOption: {
+    marginBottom: 10,
+    marginHorizontal: 10,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    //align: 'center',
+    borderColor: 'black',
+    borderWidth: 1,
+    borderRadius: 15
+  },
+  sortOptionSelected: {
+    marginBottom: 10,
+    marginHorizontal: 10,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    //align: 'center',
+    borderColor: Colors.primaryPurple,
+    borderWidth: 1,
+    borderRadius: 15
+  },
+  sortOptionText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginHorizontal: 15
+  },
+  sortOptionSelectedText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginHorizontal: 15,
+    color: Colors.primaryPurple
+  },
+  // filtering
+  category: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginHorizontal: '5%'
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    marginBottom: 5
+  },
+  search: {
+    color: Colors.primaryPurple,
+    borderWidth: 1,
+    borderColor: Colors.primaryPurple,
+    borderRadius: 15,
+    padding: 5,
+    fontSize: 18,
+    alignSelf: 'center',
+    position: 'absolute',
+    bottom: 20,
   },
 });
 

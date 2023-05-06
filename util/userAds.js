@@ -2,13 +2,13 @@
 
 import * as SQLite from 'expo-sqlite';
 
-const database = SQLite.openDatabase('userads.db');
+const database = SQLite.openDatabase('userAds.db');
 
 export function init() {
   const promise = new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
-        `CREATE TABLE IF NOT EXISTS userads (
+        `CREATE TABLE IF NOT EXISTS userAds (
           pk INTEGER PRIMARY KEY NOT NULL,
           id INTEGER NOT NULL,
           title TEXT NOT NULL,
@@ -17,6 +17,7 @@ export function init() {
           bedrooms INTEGER,
           bathrooms INTEGER,
           type TEXT NOT NULL,
+          transx TEXT NOT NULL,
           year_built INTEGER NOT NULL,
           description TEXT NOT NULL,
           location TEXT NOT NULL,
@@ -39,15 +40,15 @@ export function init() {
 }
 
 
-export function insertUserAds(id, title, price, surface, bedrooms, bathrooms, type, year_built, description, location, phone, email, image) {
+export function insertUserAds(id, title, price, surface, bedrooms, bathrooms, type, transx, year_built, description, location, phone, email, image) {
   const promise = new Promise((resolve, reject) => {
     database.transaction((transObj) => {
       transObj.executeSql(
-        `INSERT INTO userads (
-          id, title, price, surface, bedrooms, bathrooms, type, year_built, description, location, phone, email, image) 
+        `INSERT INTO userAds (
+          id, title, price, surface, bedrooms, bathrooms, type, transx, year_built, description, location, phone, email, image) 
           VALUES
-          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, title, price, surface, bedrooms, bathrooms, type, year_built, description, location, phone, email, image],
+          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, title, price, surface, bedrooms, bathrooms, type, transx, year_built, description, location, phone, email, image],
         (_, result) => {
           //console.log(result);
           resolve(result);
@@ -67,7 +68,7 @@ export function readUserAds() {
   const promise = new Promise((resolve, reject) => {
     database.transaction((transObj) => {
       transObj.executeSql(
-        `SELECT * FROM userads`,
+        `SELECT * FROM userAds`,
         [],
         (_, result) => {
           //console.log(JSON.stringify(result));
@@ -87,7 +88,7 @@ export function removeUserAd(id) {
   const promise = new Promise((resolve, reject) => {
     database.transaction((transObj) => {
       transObj.executeSql(
-        `DELETE FROM userads WHERE (id) = (?)`,
+        `DELETE FROM userAds WHERE (id) = (?)`,
         [id],
         (_, result) => {
           //console.log(result);

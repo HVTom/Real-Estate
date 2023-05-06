@@ -24,6 +24,7 @@ export async function fetchAds() {
       bedrooms: response.data[key].bedrooms,
       bathrooms: response.data[key].bathrooms,
       type: response.data[key].type,
+      transaction: response.data[key].transaction,
       year_built: response.data[key].year_built,
       description: response.data[key].description,
       location: response.data[key].location,

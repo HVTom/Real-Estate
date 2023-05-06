@@ -61,7 +61,7 @@ const AdCardComponent = ({ item }) => {
             />
             <View style={styles.moneyDetail}>
               <MaterialIcons name="euro" size={24} color="black" />
-              <Text style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 5 }}>{item.price}</Text>
+              {item.transaction === 'Rent' ? <Text style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 5 }}>{item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}/mo</Text> : <Text style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 5 }}>{item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Text>}
             </View>
             <View style={styles.detailsContainer}>
               <View style={styles.detail}>
@@ -76,6 +76,9 @@ const AdCardComponent = ({ item }) => {
                 {item.type == 'Land' || item.type == 'Comercial' ? null : (<View style={styles.detail}><MaterialCommunityIcons name="shower" size={18} color="black" style={styles.icon} />
                   <Text style={styles.text}>{item.bathrooms}</Text></View>)}
               </View>
+              <View style={styles.detail}>
+                <Text style={[styles.text, { color: Colors.primaryPurple, borderWidth: 1, borderColor: Colors.primaryPurple, paddingHorizontal: 3 }]}>{item.transaction}</Text>
+              </View>
             </View>
             <Text style={styles.text}>{item.type}</Text>
             <View style={styles.bottomDetail}>
@@ -86,8 +89,8 @@ const AdCardComponent = ({ item }) => {
             </View>
           </View>
         </Pressable>
-      </View>
-    </View>
+      </View >
+    </View >
   )
 }
 
@@ -131,7 +134,9 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     marginLeft: 5,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    justifyContent: 'space-between',
+    marginHorizontal: -5
   },
   text: {
     marginLeft: 10,
@@ -141,7 +146,10 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 8
+    marginLeft: 8,
+  },
+  priceTranx: {
+    justifyContent: 'space-between'
   },
   detail: {
     display: 'flex',

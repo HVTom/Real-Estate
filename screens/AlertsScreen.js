@@ -27,6 +27,12 @@ const AlertsScreen = ({ navigation }) => {
 
 
 
+  // TODO: alert ideea: when a user uploads an ad, send push notifications to those who
+  // have in the saved search list the same home type
+  // SAU
+  // save the db snapshot at every app open, and compare to the current snapshot to the previous;
+  // if there are any changes and the desired types are met send local notif
+  // 
 
 
   return (

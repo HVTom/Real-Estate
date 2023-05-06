@@ -9,26 +9,22 @@ import { Colors } from '../constants/styles';
 const SearchBar = ({ term, onTermChange, onTermSubmit }) => {
 
   return (
-    <View style={styles.parentContainer} >
-      <View style={styles.barContainer}>
-        <MaterialIcons name="search" size={24} color="black" style={styles.iconSearch} />
-        <TextInput
-          placeholder='Search'
-          value={term}
-          onChangeText={input => onTermChange(input.trim())}
-          style={styles.input}
-          onEndEditing={() => onTermSubmit()}
-          cursorColor={Colors.primaryPurple}
-        />
-        <TouchableOpacity onPress={() => onTermChange('')}>
-          {term.length > 0 ? (<MaterialIcons name="close" size={24} color="black" />) : null}
-        </TouchableOpacity>
-      </View>
-      <TouchableOpacity style={styles.filter} >
-        <Feather name="filter" size={24} color="black" />
+    // <View style={styles.parentContainer} >
+    <View style={styles.barContainer}>
+      <MaterialIcons name="search" size={24} color="black" style={styles.iconSearch} />
+      <TextInput
+        placeholder='Search'
+        value={term}
+        onChangeText={input => onTermChange(input.trim())}
+        style={styles.input}
+        onEndEditing={() => onTermSubmit()}
+        cursorColor={Colors.primaryPurple}
+      />
+      <TouchableOpacity onPress={() => onTermChange('')}>
+        {term.length > 0 ? (<MaterialIcons name="close" size={24} color="black" />) : null}
       </TouchableOpacity>
     </View>
-
+    // </View>
   )
 }
 

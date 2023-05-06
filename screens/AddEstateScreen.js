@@ -31,6 +31,7 @@ const AddEstateScreen = () => {
   const [beds, setBeds] = useState(0);
   const [baths, setBaths] = useState(0);
   const [type, setType] = useState('');
+  const [transaction, setTransaction] = useState('');
   const [year, setYear] = useState('');
   const [desc, setDesc] = useState('');
   const [location, setLocation] = useState('');
@@ -43,14 +44,20 @@ const AddEstateScreen = () => {
 
   // predefined list of types
   const estateTypes = [
-    { key: '1', value: 'House' },
-    { key: '2', value: 'Apartment' },
-    { key: '3', value: 'Duplex' },
+    { key: '1', value: 'House' },//5
+    { key: '2', value: 'Apartment' }, //2
+    { key: '3', value: 'Duplex' }, //3
     { key: '4', value: 'Comercial' },
-    { key: '5', value: 'Land' },
-    { key: '6', value: 'Villa' },
-    { key: '7', value: 'Residential Complex' },
-    { key: '8', value: 'Eco' },
+    { key: '5', value: 'Land' },//6
+    { key: '6', value: 'Villa' },//7
+    { key: '7', value: 'Residential Complex' },//4
+    { key: '8', value: 'Eco' } //1
+  ]
+
+  // predefined list of types
+  const transactionTypes = [
+    { key: '1', value: 'Sale' },
+    { key: '2', value: 'Rent' }
   ]
 
 
@@ -170,12 +177,12 @@ const AddEstateScreen = () => {
 
     if (validated) {
       const id = generateAdId();
-     // console.log("generated id: ", id);
+      // console.log("generated id: ", id);
       // persist user ads
       const image = images[0].b64; // insert only the first ad image
 
       // realtime db write
-      writeUserData(id, title, price, surface, beds, baths, type, year, desc, location, phone, email, images);
+      writeUserData(id, title, price, surface, beds, baths, type, transaction, year, desc, location, phone, email, images);
       Alert.alert(
         "Uploaded",
         "Ad uploaded successfully.",
@@ -187,12 +194,24 @@ const AddEstateScreen = () => {
         ]
       )
       // insert to user ads sqlite db
-      insertUserAds(id, title, price, surface, beds, baths, type, year, desc, location, phone, email, images[0].b64);
+      insertUserAds(id, title, price, surface, beds, baths, type, transaction, year, desc, location, phone, email, images[0].b64);
+      // clear fields for next upload
+      // setTitle('');
+      setImages([]);
+      // setPrice('');
+      // setSurface('');
+      // setBeds(0);
+      // setBaths(0);
+      // setType('');
+      // setTransaction('');
+      // setYear('');
+      // setDesc('');
+      // setLocation('');
+      // setPhone('');
+      // setEmail('');
     }
   }
 
-  // TODO: USE POSTMAN TO POPULATE DB
-  // TODO: ToastAndroid
 
 
   return (
@@ -204,7 +223,7 @@ const AddEstateScreen = () => {
           <TextInput
             style={styles.textInput}
             placeholder='Ad title'
-            onChangeText={input => setTitle(input.trim())}
+            onChangeText={input => setTitle(input)}
             value={title}
           />
         </View>
@@ -275,7 +294,6 @@ const AddEstateScreen = () => {
       </View>
 
       <Text style={styles.sectionText}>Extended Information</Text>
-      {/*Year Built*/}
       <View style={styles.shadowCard}>
         {/*Estate type*/}
         <View style={styles.labelInputContainer}>
@@ -285,14 +303,34 @@ const AddEstateScreen = () => {
             setSelected={(input) => setType(input)}
             save="value"
             placeholder="Select estate type"
+            search={false}
             boxStyles={{
               borderWidth: 2, borderColor: 'black', borderRadius: 30,
               width: '55%', marginVertical: '5%', marginLeft: '20%',
               marginRight: '5%'
             }}
-            dropdownStyles={{ borderWidth: 2, borderColor: 'black', }}
+            dropdownStyles={{ borderWidth: 2, borderColor: 'black', width: '53%', alignSelf: 'center' }}
           />
         </View>
+        {/*Transaction type*/}
+        <View style={styles.labelInputContainer}>
+          <Text style={styles.label}>Transaction type</Text>
+          <SelectList
+            data={transactionTypes}
+            setSelected={(input) => setTransaction(input)}
+            save="value"
+            placeholder="Select Transaction type"
+            search={false}
+            boxStyles={{
+              borderWidth: 2, borderColor: 'black', borderRadius: 30,
+              width: '50%', marginVertical: '5%', marginLeft: '20%',
+              marginRight: '5%'
+            }}
+            dropdownStyles={{ borderWidth: 2, borderColor: 'black', width: '35%', alignSelf: 'center' }}
+          />
+          <Text style={styles.label}>{transaction}</Text>
+        </View>
+        {/*Year Built*/}
         <View style={styles.labelInputContainer}>
           <Text style={styles.label}>Year Built</Text>
           <TextInput

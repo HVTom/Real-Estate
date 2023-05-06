@@ -36,7 +36,7 @@ export const getRealtimeDbData = () => {
   })
 };
 
-export function writeUserData(addId, title, price, surface, bedrooms, bathrooms, type, year_built, description, location, phone, email, images) {
+export function writeUserData(addId, title, price, surface, bedrooms, bathrooms, type, transaction, year_built, description, location, phone, email, images) {
   const db = getDatabase();
   set(ref(db, `ads/${addId}`), {
     id: addId,
@@ -46,6 +46,7 @@ export function writeUserData(addId, title, price, surface, bedrooms, bathrooms,
     bedrooms: bedrooms,
     bathrooms: bathrooms,
     type: type,
+    transaction: transaction,
     year_built: year_built,
     description: description,
     location: location,
