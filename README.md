@@ -1,2 +1,2 @@
-Bachelor's project 
-Real estate mobile app using React Native
+### Bachelor's project 
+## Real estate mobile app using React Native
