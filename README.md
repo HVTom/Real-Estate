@@ -63,7 +63,7 @@
 
 
 #### Account screen
-<img src="(https://github.com/HVTom/Real-Estate/assets/81110799/749bf50e-39e6-424a-8ea6-83f6830dd79a.png" width="300">
+<img src="https://github.com/HVTom/Real-Estate/assets/81110799/749bf50e-39e6-424a-8ea6-83f6830dd79a.png" width="300">
 
 
 ### Extended details:
