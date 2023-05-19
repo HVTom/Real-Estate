@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const RTDB_URL = 'https://realestate-bf707-default-rtdb.europe-west1.firebasedatabase.app';
+const RTDB_URL = 'db-uri';
 
 
 // export async function postAds(data) {
