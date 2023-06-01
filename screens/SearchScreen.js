@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, Button, FlatList, Image, StyleSheet, TouchableOpacity, Pressable, Modal, ScrollView, Animated } from "react-native";
 // get db
-import { fetchAds } from "../util/db";
+import { fetchAds, fetchGreenAds, fetchStudentsAds, fetchByMostSearched } from "../util/db";
 // search bar
 import SearchBar from "../components/SearchBar";
 // icon
@@ -15,15 +15,20 @@ import { SearchContext } from "../context/search-context";
 // saved search insert
 import { insertSavedSearch } from "../util/search";
 import { Colors } from "../constants/styles";
+// local storage for timestamp
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
-// TODO: alerts: save search, get push notification when updates happen in the db -> show in Alerts screen; 
-// 2 options: set alert directly from Alerts screen(easier, limit user to create alert based only on location) 
-// make the location column unique in db to avoid duplicate saves and don't be forced by an id to keep track
-// of the saves
+
+
+// TODO: add charts
+// XXXX save user email to async storage on signup/login, extract it on the account screen XXXX
+// XXXX move savede seaches with favotites XXXX
+// XXXX alerts: add timestamp to each listing; when the app opens, save the timestamp (Date.now()) locally.
+// do a GET with order by timestamp from (previous locally saved timestamp) to (Date.now())
+// fetch then update locally saved time XXX
 // XXXX or save from search bar XXXX
-// TODO: check for internet connection (low priority)
 // XXXX add filters (filter by price/sqm mandatory feature) XXXXX
 // XXXX order by XXXX
 // XXXX rename persistence.js and db.js XXXX
@@ -43,6 +48,7 @@ const SearchScreen = () => {
   const [ads, setAds] = useState([]);
   const [greenAds, setGreenAds] = useState([]);
   const [studentsAds, setStudentsAds] = useState([]);
+  const [forYouAds, setForYouAds] = useState([]);
   const favContext = useContext(FavoriteContext);
   const srchContext = useContext(SearchContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -52,24 +58,33 @@ const SearchScreen = () => {
   const [selectedFilterBtn, setSelectedFilterBtn] = useState('');
 
 
-
-  console.log("Modal visibility: ", modalVisible);
-
-
-
   useEffect(() => {
     async function getDefaultAds() {
-      const defaultEstates = await fetchAds();
-      const estatesGreen = defaultEstates.filter(ad => ad.type.includes("Eco"));
+      //const defaultEstates = await fetchAds();
+      //const estatesGreen = defaultEstates.filter(ad => ad.type.includes("Eco"));
+      const estatesGreen = await fetchGreenAds();
       //console.log("eco type ads: ", estatesGreen);
       setGreenAds(estatesGreen);
-      const estatesStudents = defaultEstates.filter(ad => ad.price >= MIN_PRICE && ad.price <= MAX_PRICE);
+      //const estatesStudents = defaultEstates.filter(ad => ad.price >= MIN_PRICE && ad.price <= MAX_PRICE);
+      const estatesStudents = await fetchStudentsAds();
       //console.log("ads for students: ", estatesStudents)
       setStudentsAds(estatesStudents);
+      // for you section - shows ads with location based on most searched terms
+
+      const savedSearchTerms = await AsyncStorage.getItem('searchTerms');
+      //const searchTermsArray = savedSearchTerms ? JSON.parse(savedSearchTerms) : [];
+      searchTermsArray = JSON.parse(savedSearchTerms);
+      console.log("searchTermsArray: ", searchTermsArray);
+      let freqCity = frequency(searchTermsArray);
+      console.log("Most searched city: ", freqCity);
+      //setMostSearched(freqCity);
+
+      const forYou = await fetchByMostSearched(freqCity);
+      console.log("forYou section: ", forYou);
+      setForYouAds(forYou);
     }
     getDefaultAds();
-  }, [setGreenAds])
-
+  }, [setForYouAds])
 
 
   const getRealtimeDb = () => {
@@ -118,51 +133,102 @@ const SearchScreen = () => {
       <ScrollView style={styles.screenContainer} showsVerticalScrollIndicator={false} >
         <View>
           <Text style={styles.sectionText}>Eco Housing</Text>
-          <FlatList
-            style={styles.list}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={greenAds}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => {
-              if (favContext.ids.includes(item.id)) {
-                return (
-                  <View>
-                    <SavedAdCardComponent item={item} />
-                  </View>
-                );
-              }
-              else return (
-                <View>
-                  <AdCardComponent item={item} />
-                </View>
-              );
-            }}
-          />
+          {greenAds.length == 0 ?
+            (
+              <View>
+                <Text style={styles.noContentText}>No listings at the moment</Text>
+              </View>
+            ) :
+            (
+              <FlatList
+                style={styles.list}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                data={greenAds}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => {
+                  if (favContext.ids.includes(item.id)) {
+                    return (
+                      <View>
+                        <SavedAdCardComponent item={item} />
+                      </View>
+                    );
+                  }
+                  else return (
+                    <View>
+                      <AdCardComponent item={item} />
+                    </View>
+                  );
+                }}
+              />
+            )
+          }
         </View>
         <View>
           <Text style={styles.sectionText}>For Students</Text>
-          <FlatList
-            style={styles.list}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={studentsAds}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => {
-              if (favContext.ids.includes(item.id)) {
-                return (
-                  <View>
-                    <SavedAdCardComponent item={item} />
-                  </View>
-                );
-              }
-              else return (
-                <View>
-                  <AdCardComponent item={item} />
-                </View>
-              );
-            }}
-          />
+          {studentsAds.length == 0 ?
+            (
+              <View>
+                <Text style={styles.noContentText}>No listings at the moment</Text>
+              </View>
+            ) :
+            (
+              <FlatList
+                style={styles.list}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                data={studentsAds}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => {
+                  if (favContext.ids.includes(item.id)) {
+                    return (
+                      <View>
+                        <SavedAdCardComponent item={item} />
+                      </View>
+                    );
+                  }
+                  else return (
+                    <View>
+                      <AdCardComponent item={item} />
+                    </View>
+                  );
+                }}
+              />
+            )
+          }
+        </View>
+        <View>
+          <Text style={styles.sectionText}>For you</Text>
+          {forYouAds.length == 0 ?
+            (
+              <View>
+                <Text style={styles.noContentText}>No new listings at the moment</Text>
+              </View>
+            ) :
+            (
+              <FlatList
+                style={styles.list}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                data={forYouAds}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => {
+                  if (favContext.ids.includes(item.id)) {
+                    return (
+                      <View>
+                        <SavedAdCardComponent item={item} />
+                      </View>
+                    );
+                  }
+                  else return (
+                    <View>
+                      <AdCardComponent item={item} />
+                    </View>
+                  );
+                }}
+              />
+            )
+          }
         </View>
       </ScrollView>
     );
@@ -430,11 +496,70 @@ const SearchScreen = () => {
     );
   }
 
+  ///////////////////////////////////////////////////////////////////
+  const frequency = (arr) => {
+    let element = '';
+    let max = -999999;
+    for (let i in arr) {
+      let count = 0;
+      for (let j in arr) {
+        if (arr[i] === arr[j]) {
+          count++
+        }
+      }
+      if (count > max) {
+        max = count;
+        element = arr[i];
+      }
+    }
+    console.log(`Element ${element} has frequency ${max}.`);
+    return element;
+  }
+
+
+  const loadSearchTerms = async () => {
+    try {
+      const savedSearchTerms = await AsyncStorage.getItem('searchTerms');
+      const searchTermsArray = savedSearchTerms ? JSON.parse(savedSearchTerms) : [];
+      console.log('\nSearch terms loaded successfully:', searchTermsArray);
+      // let freqCity = frequency(searchTermsArray);
+      // console.log("Most searched city: ", freqCity);
+      // console.log("mostSearched", JSON.stringify(mostSearched));
+      // setMostSearched(freqCity);
+      return searchTermsArray;
+    } catch (error) {
+      console.log('Failed to load search terms:', error);
+      return [];
+    }
+  };
+
+  
+
+
+  const saveSearchTerm = async (term) => {
+    try {
+      const searchTermsArray = await loadSearchTerms();
+      searchTermsArray.push(term);
+      await AsyncStorage.setItem('searchTerms', JSON.stringify(searchTermsArray));
+      console.log(`\nSearch term ${term} saved successfully.`);
+      console.log('\nSearch terms after added term: ', searchTermsArray);
+    } catch (error) {
+      console.log('Failed to save search term:', error);
+    }
+  };
+
+
   return (
     <View style={styles.screenContainer}>
       <View style={styles.barIcon} >
         <SearchBar term={term} onTermChange={input => setTerm(input)}
           onTermSubmit={() => {
+            //add search term to async storage only if there are results?
+            //if (ads.length > 0) {
+            // call the func that returns the most searched term/s
+            saveSearchTerm(term);
+            //}
+            //
             setSelectedSortBtn('');
             setSelectedSaleRentBtn('');
             setSelectedFilterBtn('');
@@ -587,6 +712,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     position: 'absolute',
     bottom: 20,
+  },
+  noContentText: {
+    fontSize: 20,
+    marginVertical: 20,
+    alignSelf: 'center'
   },
 });
 

@@ -36,6 +36,16 @@
         {
           "photosPermission": "The app needds access to your photos."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/favicon.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/pristine.mp3"
+          ]
+        }
       ]
     ]
   }

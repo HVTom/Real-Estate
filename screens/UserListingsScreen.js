@@ -24,6 +24,7 @@ const UserListingsScreen = () => {
 
   return (
     <View style={styles.page}>
+      <Text>{userAds.length} listings</Text>
       {userAds.length == 0 ? <Text style={styles.title}>You have no listings yet</Text> : <Text style={styles.title}>Your Listings</Text>}
       <FlatList
         style={styles.listContainer}

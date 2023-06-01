@@ -1,12 +1,16 @@
 import React, { useContext, useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
-//icon
+// icon
 import { Feather } from '@expo/vector-icons';
 import { Colors } from "../constants/styles";
-//register function
+// register function
 import { createUser } from "../util/auth";
-//auth context
+// auth context
 import { AuthContext } from "../context/auth-context";
+// local storage for email address
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 
 const SignupScreen = ({ navigation }) => {
@@ -17,11 +21,22 @@ const SignupScreen = ({ navigation }) => {
 
   const authContext = useContext(AuthContext);
 
+  const storeEmail = async (email_adr) => {
+    try {
+      let em = JSON.stringify(email_adr);
+      await AsyncStorage.setItem('email_addr', em);
+      console.log(`Email with value ${em} stored successfully\n`);
+    } catch (e) {
+      console.log("Email save err: ", e);
+    }
+  }
+
   const Register = async (email, password) => {
     setIsAuthenticating(true);
     try {
       const token = await createUser(email, password);
       authContext.authenticate(token);
+      storeEmail(email);
       setEmail('');
       setPassword('');
     } catch (error) {

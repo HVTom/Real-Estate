@@ -55,7 +55,7 @@ const FavoritesScreen = () => {
     <View style={styles.screenContainer}>
       {favContext.ids.length == 1 && (<Text>You have {favContext.ids.length} favorite listing</Text>)}
       {favContext.ids.length > 1 && (<Text>You have {favContext.ids.length} favorites listings</Text>)}
-      <Button title="Drop myads DB" onPress={() => dropMyAd()} />
+      {/* <Button title="Drop myads DB" onPress={() => dropMyAd()} /> */}
       <FlatList
         style={styles.listContainer}
         showsVerticalScrollIndicator={false}

@@ -6,10 +6,15 @@ import { SearchContext } from "../context/search-context";
 import { readSavedSearch } from "../util/search";
 // SavedSearch Component
 import SavedSearch from "../components/SavedSearch";
+// async storage for prevTimestamp
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// fetch new ads and look inside saved searches
+import { fetchNewAds } from "../util/db";
 
 
 const AlertsScreen = ({ navigation }) => {
   const [searches, setSearches] = useState([]);
+  const [newListings, setnewListings] = useState([]);
   const srchContext = useContext(SearchContext);
 
 
@@ -24,15 +29,6 @@ const AlertsScreen = ({ navigation }) => {
     }
     fetchSavedSearches();
   }, [srchContext]);
-
-
-
-  // TODO: alert ideea: when a user uploads an ad, send push notifications to those who
-  // have in the saved search list the same home type
-  // SAU
-  // save the db snapshot at every app open, and compare to the current snapshot to the previous;
-  // if there are any changes and the desired types are met send local notif
-  // 
 
 
   return (

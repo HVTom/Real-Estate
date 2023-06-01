@@ -13,25 +13,53 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 //card with del button
 import UserAdCard from "../components/UserAdCard";
-//get the ads posted by the user
-import { readUserAds } from "../util/userAds";
 // modal screen
 import UserListingsScreen from "./UserListingsScreen";
+import { UserListingContext } from "../context/user-listing-context";
+import { readUserAds } from '../util/userAds';
+
+
+
 
 
 const AccountScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [picture, setPicture] = useState();
+  const [email, setEmail] = useState();
   const authContext = useContext(AuthContext);
-  //currency toggle
-  const [isEnabledCurrencySwitch, setIsEnabledCurrencySwitch] = useState(false);
-  const toggleCurrencySwitch = () => setIsEnabledCurrencySwitch(!isEnabledCurrencySwitch);
-  //units
-  const [isEnabledSurfaceSwitch, setIsEnabledSurfaceSwitch] = useState(false);
-  const toggleSurfaceSwitch = () => setIsEnabledSurfaceSwitch(!isEnabledSurfaceSwitch);
-  //theme toggle
-  const [isEnabledThemeSwitch, setIsEnabledThemeSwitch] = useState(false);
-  const toggleThemeSwitch = () => setIsEnabledThemeSwitch(!isEnabledThemeSwitch);
+  const [userAds, setUserAds] = useState([]);
+  const userAdsContext = useContext(UserListingContext);
+
+
+  useEffect(() => {
+    //console.log("userAdsContext.ads: ", userAdsContext.ads);
+
+    async function fetchFromUserAds() {
+      const response = await readUserAds(); // read from sqlite
+      const responseIdsArray = response.rows._array;
+      //console.log('Sqlite user ads: ', responseIdsArray);
+      setUserAds(responseIdsArray);
+    }
+    fetchFromUserAds();
+  }, [readUserAds, userAdsContext]);
+
+
+
+  useEffect(() => {
+    const getEmail = async () => {
+      try {
+        const mail = await AsyncStorage.getItem('email_addr');
+        const Email = JSON.parse(mail);
+        if (Email !== null) {
+          console.log(`User has email ${Email}`);
+          setEmail(Email);
+        }
+      } catch (e) {
+        console.log("Error fetching user email");
+      }
+    }
+    getEmail();
+  }, []);
 
 
   const onHandleLogout = () => {
@@ -94,15 +122,13 @@ const AccountScreen = () => {
 
   return (
     <View>
-      {/*TODO: fetch user email from auth-provider <Text>Hello, {username}!</Text> */}
       <View style={styles.headerView}>
         <TouchableOpacity onPress={pickImage}>
           <Image style={styles.profilePic} source={picture != null ? { uri: picture } : require('../assets/logo-black.png')} />
         </TouchableOpacity>
-        <Text style={styles.profileMail}>name@provider.com</Text>
+        <Text style={styles.profileMail}>{email}</Text>
       </View>
 
-      {/* TODO: your listings opens user ads; make a card to represent data with deelete button; that delets both from realtime db and sqlite */}
 
       <View>
         <Modal
@@ -124,11 +150,11 @@ const AccountScreen = () => {
             </View>
           </View>
         </Modal>
-        {/*TODO: ad your listings button to open modal; put listings numbers o the button*/}
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <View style={styles.buttonView}>
             <Feather style={styles.icon} name='tag' size={24} />
             <Text style={styles.text}>Your listings</Text>
+            <Text style={styles.text}>{userAds.length}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -139,58 +165,6 @@ const AccountScreen = () => {
 
 
 
-      {/*TODO: add currency switcher button*/}
-      <View style={styles.buttonView}>
-        <FontAwesome5 style={styles.icon} name="money-bill-alt" size={20} color="black" />
-        <Text style={styles.text} >Currency</Text>
-        <View style={styles.switchSide}>
-          <MaterialIcons style={styles.icon} name="euro" size={24} color="black" />
-          <Switch
-            // trackColor={{ false: '#767577', true: '#81b0ff' }}
-            // thumbColor={isEnabledCurrencySwitch ? '#f5dd4b' : '#f4f3f4'}
-            // ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleCurrencySwitch}
-            value={isEnabledCurrencySwitch}
-          />
-          <Feather style={styles.icon} name='dollar-sign' size={24} />
-        </View>
-      </View>
-
-
-      {/*TODO: add measuring units switcher button*/}
-      <View style={styles.buttonView}>
-        <Feather style={styles.icon} name='maximize-2' size={24} />
-        <Text style={styles.text} >Surface</Text>
-        <View style={styles.switchSide}>
-          <Text style={{ fontSize: 18, marginHorizontal: '3%' }} >Sqm</Text>
-          <Switch
-            // trackColor={{ false: '#767577', true: '#81b0ff' }}
-            // thumbColor={isEnabledSurfaceSwitch ? '#f5dd4b' : '#f4f3f4'}
-            // ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleSurfaceSwitch}
-            value={isEnabledSurfaceSwitch}
-          />
-          <Text style={{ fontSize: 18, marginHorizontal: '3%' }}>Mp</Text>
-        </View>
-      </View>
-
-
-      {/*theme button*/}
-      <View style={styles.buttonView}>
-        <MaterialCommunityIcons style={styles.icon} name="theme-light-dark" size={24} color="black" />
-        <Text style={styles.text} >Theme</Text>
-        <View style={styles.switchSide}>
-          <Feather style={styles.icon} name="sun" size={24} color="black" />
-          <Switch
-            //trackColor={{ false: '#767577', true: '#81b0ff' }}
-            //thumbColor={isEnabledThemeSwitch ? '#f5dd4b' : '#f4f3f4'}
-            //ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleThemeSwitch}
-            value={isEnabledThemeSwitch}
-          />
-          <Feather style={styles.icon} name="moon" size={24} color="black" />
-        </View>
-      </View>
 
       <TouchableOpacity onPress={onHandleLogout}>
         <View style={[styles.buttonView, styles.buttonViewLogout]}>

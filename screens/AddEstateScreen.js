@@ -104,6 +104,12 @@ const AddEstateScreen = () => {
     return id;
   }
 
+  // generate timestamp
+  const generateTimestamp = () => {
+    let uploadTime = Date.now();
+    return uploadTime;
+  }
+
   // don't let the user select a value under 0
   if (beds < 0) {
     setBeds(0);
@@ -177,12 +183,14 @@ const AddEstateScreen = () => {
 
     if (validated) {
       const id = generateAdId();
+      const timestamp = generateTimestamp();
+      //console.log(timestamp);
       // console.log("generated id: ", id);
       // persist user ads
       const image = images[0].b64; // insert only the first ad image
 
       // realtime db write
-      writeUserData(id, title, price, surface, beds, baths, type, transaction, year, desc, location, phone, email, images);
+      writeUserData(id, title, price, surface, beds, baths, type, transaction, year, desc, location, phone, email, images, timestamp);
       Alert.alert(
         "Uploaded",
         "Ad uploaded successfully.",
@@ -250,7 +258,7 @@ const AddEstateScreen = () => {
             style={styles.textInput}
             keyboardType='phone-pad'
             placeholder='$amount'
-            onChangeText={input => setPrice(input)}
+            onChangeText={input => setPrice(parseInt(input))} //TODO: remove parsing if necessary
             value={price}
           />
         </View>
@@ -359,7 +367,7 @@ const AddEstateScreen = () => {
           <TextInput
             style={styles.textInput}
             placeholder='County, City, Country'
-            onChangeText={input => setLocation(input)}
+            onChangeText={input => setLocation(input.trim())}
             value={location}
           />
         </View>

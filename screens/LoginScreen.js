@@ -7,6 +7,10 @@ import { Colors } from "../constants/styles";
 import { login } from "../util/auth";
 //auth context
 import { AuthContext } from "../context/auth-context";
+// local storage for email address
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 
 const LoginScreen = ({ navigation }) => {
@@ -17,11 +21,22 @@ const LoginScreen = ({ navigation }) => {
 
   const authContext = useContext(AuthContext)
 
+  const storeEmail = async (email_adr) => {
+    try {
+      let em = JSON.stringify(email_adr);
+      await AsyncStorage.setItem('email_addr', em);
+      console.log(`Email with value ${em} stored successfully\n`);
+    } catch (e) {
+      console.log("Email save err: ", e);
+    }
+  }
+
   const Login = async (email, password) => {
     setIsAuthenticating(true);
     try {
       const token = await login(email, password);
       authContext.authenticate(token);
+      storeEmail(email);
       setEmail('');
       setPassword('');
     } catch (error) {
@@ -83,6 +98,9 @@ const LoginScreen = ({ navigation }) => {
             <Text style={styles.navigationText}>Signup</Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPasswordScreen')}>
+            <Text style={styles.forgotPass}>Forgot Password?</Text>
+          </TouchableOpacity>
       </View>
     </View>
   );
@@ -155,7 +173,12 @@ const styles = StyleSheet.create({
   },
   navigationText: {
     color: Colors.primaryPurple,
-  }
+  },
+  forgotPass: {
+    color: Colors.primaryPurple,
+    alignSelf: 'center',
+    top: 30
+  },
 });
 
 export default LoginScreen;
