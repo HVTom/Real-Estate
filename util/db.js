@@ -1,6 +1,5 @@
 import axios from "axios";
 
-const RTDB_URL = 'db-uri';
 
 
 // export async function postAds(data) {
