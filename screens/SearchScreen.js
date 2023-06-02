@@ -49,6 +49,9 @@ const SearchScreen = () => {
   const [greenAds, setGreenAds] = useState([]);
   const [studentsAds, setStudentsAds] = useState([]);
   const [forYouAds, setForYouAds] = useState([]);
+  const [minVal, setMinVal] = useState();
+  const [maxVal, setMaxVal] = useState();
+  const [transax, setTransax] = useState('');
   const favContext = useContext(FavoriteContext);
   const srchContext = useContext(SearchContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -56,6 +59,27 @@ const SearchScreen = () => {
   const [selectedSortBtn, setSelectedSortBtn] = useState('');
   const [selectedSaleRentBtn, setSelectedSaleRentBtn] = useState('');
   const [selectedFilterBtn, setSelectedFilterBtn] = useState('');
+
+
+  // retrieve the budget range; used in "For you" section for better accuracy
+  useEffect(() => {
+    const getBudgetValues = async () => {
+      try {
+        let minV = await AsyncStorage.getItem("minVal");
+        console.log("Search screen -> Extracted min value: ", minV);
+        setMinVal(minV);
+        let maxV = await AsyncStorage.getItem("maxVal");
+        console.log("Search screen -> Extracted min value: ", maxV);
+        setMaxVal(maxV);
+        let tsx = await AsyncStorage.getItem("transaction");
+        console.log("Search screen -> Extracted transaction value: ", tsx);
+        setTransax(tsx.trim());
+      } catch (error) {
+        console.log("Couldn't extract minVal and MaxVal from lcoal storage. Reason: ", error);
+      }
+    }
+    getBudgetValues();
+  }, [minVal, maxVal, transax]);
 
 
   useEffect(() => {
@@ -81,10 +105,23 @@ const SearchScreen = () => {
 
       const forYou = await fetchByMostSearched(freqCity);
       console.log("forYou section: ", forYou);
-      setForYouAds(forYou);
+      //const forYouPriceRange = [];
+      if (transax == "Both") {
+        let forYouPriceRange = forYou.filter(
+          ad => ad.price >= minVal && ad.price <= maxVal
+        );
+        setForYouAds(forYouPriceRange);
+        console.log("forYouPriceRange: ", forYouPriceRange);
+      } else {
+        let forYouPriceRange = forYou.filter(
+          ad => ad.price >= minVal && ad.price <= maxVal && ad.transaction == transax
+        );
+        setForYouAds(forYouPriceRange);
+        console.log("forYouPriceRange: ", forYouPriceRange);
+      }
     }
     getDefaultAds();
-  }, [setForYouAds])
+  }, [minVal, maxVal, transax])// make sure useEffect runs after minVal and max Val are fetched
 
 
   const getRealtimeDb = () => {
@@ -92,7 +129,7 @@ const SearchScreen = () => {
       const estates = await fetchAds();
       const estatesByTerm = estates.filter(
         ad => ad.title.toLowerCase().includes(term.toLowerCase()) ||
-          ad.type.toLowerCase().includes(term.toLowerCase()) ||
+          //ad.type.toLowerCase().includes(term.toLowerCase()) ||
           ad.description.toLowerCase().includes(term.toLowerCase()) ||
           ad.location.toLowerCase().includes(term.toLowerCase())
       );
@@ -521,7 +558,7 @@ const SearchScreen = () => {
     try {
       const savedSearchTerms = await AsyncStorage.getItem('searchTerms');
       const searchTermsArray = savedSearchTerms ? JSON.parse(savedSearchTerms) : [];
-      console.log('\nSearch terms loaded successfully:', searchTermsArray);
+      //console.log('\nSearch terms loaded successfully:', searchTermsArray);
       // let freqCity = frequency(searchTermsArray);
       // console.log("Most searched city: ", freqCity);
       // console.log("mostSearched", JSON.stringify(mostSearched));
@@ -533,7 +570,7 @@ const SearchScreen = () => {
     }
   };
 
-  
+
 
 
   const saveSearchTerm = async (term) => {
@@ -542,7 +579,7 @@ const SearchScreen = () => {
       searchTermsArray.push(term);
       await AsyncStorage.setItem('searchTerms', JSON.stringify(searchTermsArray));
       console.log(`\nSearch term ${term} saved successfully.`);
-      console.log('\nSearch terms after added term: ', searchTermsArray);
+      //console.log('\nSearch terms after added term: ', searchTermsArray);
     } catch (error) {
       console.log('Failed to save search term:', error);
     }

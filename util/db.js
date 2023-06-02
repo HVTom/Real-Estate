@@ -355,8 +355,6 @@ export async function average(loc) {
   }
   return ads;
 }
-<<<<<<< Updated upstream
-=======
 
 
 
@@ -377,4 +375,3 @@ export async function average(loc) {
 
 
 
->>>>>>> Stashed changes

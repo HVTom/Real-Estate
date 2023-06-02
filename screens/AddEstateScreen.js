@@ -360,8 +360,6 @@ const AddEstateScreen = () => {
             value={desc}
           />
         </View>
-        {/*Location TODO: add a country state city json and integrate with dropdown lidt; use 
-        https://countrystatecity.in/docs/ */}
         <View style={styles.labelInputContainer}>
           <Text style={styles.label}>Location</Text>
           <TextInput
@@ -480,7 +478,20 @@ const styles = StyleSheet.create({
     marginVertical: '15%',
     backgroundColor: Colors.primaryPurple,
     padding: '3%',
-    borderRadius: 30
+    borderRadius: 30,
+    //
+    elevation: 3, // Add elevation for shadow effect
+    // shadowColor: 'black', // Customize the shadow color
+    // shadowOffset: { width: 0, height: 2 }, // Customize the shadow offset
+    //
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+
   },
   buttonText: {
     fontSize: 18,

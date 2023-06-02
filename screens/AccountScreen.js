@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TouchableOpacity, Image, Alert, StyleSheet, LogBox, Modal, Pressable, Switch } from "react-native";
+import { View, Text, TouchableOpacity, Image, Alert, StyleSheet, LogBox, Modal, Pressable, Switch, TextInput } from "react-native";
 //icon
 import { Feather } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
@@ -17,18 +17,71 @@ import UserAdCard from "../components/UserAdCard";
 import UserListingsScreen from "./UserListingsScreen";
 import { UserListingContext } from "../context/user-listing-context";
 import { readUserAds } from '../util/userAds';
+// Select List
+import { SelectList, selectList } from 'react-native-dropdown-select-list';
 
 
 
 
 
 const AccountScreen = () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [minVal, setMinVal] = useState();
+  const [maxVal, setMaxVal] = useState();
+  const [transaction, setTransaction] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [picture, setPicture] = useState();
   const [email, setEmail] = useState();
   const authContext = useContext(AuthContext);
   const [userAds, setUserAds] = useState([]);
   const userAdsContext = useContext(UserListingContext);
+
+
+  // predefined list of types
+  const transactionTypes = [
+    { key: '1', value: 'Sale' },
+    { key: '2', value: 'Rent' },
+    { key: '3', value: 'Both' }
+  ]
+
+
+  const switchEditState = async () => {
+    if (isEditing) {
+      // Save minVal and maxVal to AsyncStorage
+      try {
+        await AsyncStorage.setItem("minVal", minVal);
+        console.log(`${minVal} saved successfully to async storage.`);
+        await AsyncStorage.setItem("maxVal", maxVal);
+        console.log(`${maxVal} saved successfully to async storage.`);
+        await AsyncStorage.setItem("transaction", transaction);
+        console.log(`${transaction} saved successfully to async storage.`);
+      } catch (error) {
+        console.log("Error saving values:", error);
+      }
+    }
+    setIsEditing(!isEditing);
+  };
+
+
+
+  useEffect(() => {
+    const getBudgetValues = async () => {
+      try {
+        let minV = await AsyncStorage.getItem("minVal");
+        console.log("Extracted min value: ", minV);
+        setMinVal(minV);
+        let maxV = await AsyncStorage.getItem("maxVal");
+        console.log("Extracted min value: ", maxV);
+        setMaxVal(maxV);
+        let tsx = await AsyncStorage.getItem("transaction");
+        console.log("Extracted transaction: ", tsx);
+        setTransaction(tsx);
+      } catch (error) {
+        console.log("Couldn't extract minVal and MaxVal from lcoal storage. Reason: ", error);
+      }
+    }
+    getBudgetValues();
+  }, []);
 
 
   useEffect(() => {
@@ -164,6 +217,54 @@ const AccountScreen = () => {
       will show the auth flow to the user! */}
 
 
+      <View style={styles.budgetContainer}>
+        <Text style={styles.budgetText}>Set budget limits</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.budgetInput}
+            keyboardType="number-pad"
+            editable={isEditing}
+            placeholder={minVal}
+            onChangeText={input => setMinVal(input)} //.trim()
+            value={minVal}
+          />
+          <TextInput
+            style={styles.budgetInput}
+            keyboardType="number-pad"
+            editable={isEditing}
+            placeholder={maxVal}
+            onChangeText={input => setMaxVal(input)} //.trim()
+            value={maxVal}
+          />
+        </View>
+        {/* add "im interested in sale/renting transaction type" if needed */}
+        <View style={styles.transactionContainer} >
+          <Text style={styles.budgetText}>I'm interseted in: </Text>
+          <View style={styles.transactionContainer} pointerEvents={isEditing == false ? 'none' : 'auto'}>
+            <SelectList 
+              data={transactionTypes}
+              setSelected={(input) => setTransaction(input)}
+              save="value"
+              placeholder={transaction}
+              search={false}
+              boxStyles={{
+                borderWidth: 1,
+                borderColor: 'black',
+                borderRadius: 30,
+                width: '30%',
+                //marginLeft: '5%',
+              }}
+              dropdownStyles={{ borderWidth: 1, borderColor: 'black', width: '35%', alignSelf: 'center' }}
+              disabled={isEditing}
+            />
+          </View>
+        </View>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={switchEditState}>
+          {isEditing == true ? (<Feather name="check" size={24} color="green" />) : (<Feather name="edit-2" size={24} color={Colors.primaryPurple} />)}
+        </TouchableOpacity>
+      </View>
 
 
       <TouchableOpacity onPress={onHandleLogout}>
@@ -194,7 +295,7 @@ const styles = StyleSheet.create({
   },
   profileMail: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 15,
 
   },
   button: {
@@ -204,7 +305,8 @@ const styles = StyleSheet.create({
     padding: '3%',
     borderRadius: 30,
     alignItems: 'center',
-    alignSelf: 'flex-end'
+    alignSelf: 'flex-end',
+
   },
   logout: {
     marginTop: '7%',
@@ -220,7 +322,18 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     padding: '3%',
     borderRadius: 5,
-    marginVertical: '3%'
+    marginVertical: '3%',
+    // shadow and elevation 
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+
   },
   buttonViewLogout: {
     width: '90%',
@@ -229,7 +342,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: '3%',
     borderRadius: 5,
-    marginVertical: '3%'
+    marginVertical: '3%',
   },
   button: {
     flexDirection: 'row',
@@ -248,7 +361,8 @@ const styles = StyleSheet.create({
   },
   textLogout: {
     marginLeft: '3%',
-    color: 'white'
+    color: 'white',
+    fontSize: 18
   },
   switchSide: {
     display: 'flex',
@@ -273,6 +387,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
+    // shadow and elevation 
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -306,6 +421,61 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
+  // budget limits view
+  budgetContainer: {
+    backgroundColor: 'white',
+    width: '90%',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    borderRadius: 5,
+    padding: 20,
+    // shadow and elevation 
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  budgetText: {
+    fontSize: 18,
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
+  transactionText: {
+    fontSize: 18,
+    alignSelf: 'center',
+    marginRight: '4%'
+  },
+  inputContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  transactionContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '5%'
+  },
+  budgetInput: {
+    borderColor: 'black',
+    borderWidth: 1,
+    borderRadius: 30,
+    width: '42%',
+    height: 48,
+    padding: '3%',
+    fontSize: 18,
+    textAlign: 'center'//
+  },
+  editButton: {
+    alignSelf: 'center',
+    marginTop: 20
+  },
+
 });
 
 export default AccountScreen;
