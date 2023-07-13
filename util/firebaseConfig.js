@@ -5,13 +5,13 @@ import { getDatabase, ref, child, set, get } from "firebase/database";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDhf3nb3fy_olCvHL-P66GX5-W3iqep8dw",
-  authDomain: "realestate-bf707.firebaseapp.com",
-  databaseURL: "https://realestate-bf707-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "realestate-bf707",
-  storageBucket: "realestate-bf707.appspot.com",
-  messagingSenderId: "709528688933",
-  appId: "1:709528688933:web:5835f41b29b50b7762a2cc"
+  apiKey: "apikey",
+  authDomain: "authDomain",
+  authDomain: "authDomain",
+  projectId: "projectId",
+  storageBucket: "storageBucket",
+  messagingSenderId: "messagingSenderId",
+  appId: "appId"
 };
 
 // Initialize Firebase
