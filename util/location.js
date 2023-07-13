@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const TOKEN = 'pk.eyJ1IjoidGhvbTIzIiwiYSI6ImNreHE1dGlheTJla2syeXFrMDh6bWVubmMifQ.FJI_I_aW5GQakRPeLsfNjg';
+const TOKEN = 'mapbox token';
 
 
 export async function getCoords(address) {
